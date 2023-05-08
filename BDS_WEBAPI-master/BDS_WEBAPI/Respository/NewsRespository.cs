@@ -54,5 +54,7 @@ namespace BDS_WEBAPI.Respository
             News.ReplaceOne(x => x._id == entity._id, entity);
             return await Task.FromResult(entity);
         }
+
+      
     }
 }

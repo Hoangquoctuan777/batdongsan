@@ -5,6 +5,7 @@ namespace BDS_WEBAPI.IRespository
     public interface INewsRespository
     {
         Task<IEnumerable<News>> GetAll();
+      
         Task<News> GetbyId(string id);
         Task DeletebyId(string id);
         Task<News> Insert(News entity);

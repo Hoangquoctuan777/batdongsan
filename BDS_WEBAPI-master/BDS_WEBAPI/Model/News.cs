@@ -13,8 +13,10 @@ namespace BDS_WEBAPI.Model
         [BsonElement("content")]
         public string? content { get; set; }
         [BsonElement("Date_Public")]
-        public string? Date_Public { get; set; }
+        [BsonRepresentation(BsonType.DateTime)]
+        public DateTimeOffset DatePublic { get; set; }
         [BsonElement("By")]
         public string? By { get; set; }
+
     }
 }

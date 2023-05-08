@@ -4,6 +4,7 @@ using BDS_WEBAPI.Respository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
+using System;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace BDS_WEBAPI.Controllers
@@ -22,7 +23,10 @@ namespace BDS_WEBAPI.Controllers
         public async Task<ActionResult<News>> GetAll(
             [FromQuery] string? keyword,
             [FromQuery] int limit = 10,
-            [FromQuery] int offset = 0)
+            [FromQuery] int offset = 0,
+            [FromQuery] int? year = null,
+            [FromQuery] int? month = null,
+            [FromQuery] int? day = null)
         {
             try
             {
@@ -32,12 +36,29 @@ namespace BDS_WEBAPI.Controllers
                 if (!string.IsNullOrEmpty(keyword))
                 {
 
-                    // tìm kiếm tương đối
+                    // tìm kiếm tương đối, tìm kiếm theo tiêu đề, người đăng
                     myModel = myModel.Where(u => u.Title.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
                     || u.By.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
 
                 }
+                // Lọc theo ngày, tháng, năm
+                if (year.HasValue)
+                {
+                    myModel = myModel.Where(u => u.DatePublic.Year == year.Value);
 
+                    if (month.HasValue)
+                    {
+                        myModel = myModel.Where(u => u.DatePublic.Month == month.Value);
+
+                        if (day.HasValue)
+                        {
+                            myModel = myModel.Where(u => u.DatePublic.Day == day.Value);
+                        }
+                    }
+                }
+                    //phân trang 
+                    myModel = myModel.Skip(offset).Take(limit);
+               
                 return Ok(myModel);
             }
 
@@ -47,7 +68,7 @@ namespace BDS_WEBAPI.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-
+       
         [HttpPost("Create")]
         public async Task<ActionResult> Insert([FromBody] News model)//done
         {
@@ -92,6 +113,7 @@ namespace BDS_WEBAPI.Controllers
                         _id = id,
                         Title = model.Title ?? curent.Title,
                         content = model.content ?? curent.content,
+                        DatePublic = curent.DatePublic,
                         By = model.By ?? curent.By,
                        
                     };
